@@ -1,0 +1,66 @@
+# policies/categories/best-practices/resource-requirements.yaml
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: resource-requirements
+  annotations:
+    kyverno.io/title: Resource Requirements
+    kyverno.io/severity: medium
+    kyverno.io/subject: Pod
+    kyverno.io/description: Enforce resource requirements
+    kyverno.io/categories: best-practices
+    kyverno.io/author: your-name
+    kyverno.io/description: Ensure all containers specify resource requests and limits
+spec:
+  validation:
+    openAPIV3Schema:
+      type: object
+      properties:
+        spec:
+          type: object
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  resources:
+                    type: object
+                    properties:
+                      requests:
+                        type: object
+                        properties:
+                          cpu:
+                            type: string
+                          memory:
+                            type: string
+                      limits:
+                        type: object
+                        properties:
+                          cpu:
+                            type: string
+                          memory:
+                            type: string
+                    required:
+                    - requests
+                    - limits
+  rules:
+  - name: validate-resource-requirements
+    match:
+      resources:
+        kinds:
+        - Pod
+        - Deployment
+        - StatefulSet
+        - DaemonSet
+    validate:
+      message: "All containers must specify both resource requests and limits."
+      pattern:
+        spec:
+          containers:
+          - resources:
+              requests:
+                cpu: "?*"
+                memory: "?*"
+              limits:
+                cpu: "?*"
+                memory: "?*"
