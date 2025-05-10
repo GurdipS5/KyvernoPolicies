@@ -1,0 +1,18 @@
+  apiVersion: kyverno.io/v1
+    kind: ClusterPolicy
+    metadata:
+      name: require-specific-annotations
+    spec:
+      rules:
+      - name: require-annotations
+        match:
+          resources:
+            kinds:
+            - Pod
+        validate:
+          message: "Pods must have the annotation 'owner' and 'purpose'."
+          pattern:
+            metadata:
+              annotations:
+                owner: "?*"
+                purpose: "?*"
