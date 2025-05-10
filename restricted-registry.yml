@@ -1,0 +1,44 @@
+# policies/categories/compliance/restricted-registry.yaml
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restricted-registry
+  annotations:
+    kyverno.io/title: Restricted Registry
+    kyverno.io/severity: high
+    kyverno.io/subject: Pod
+    kyverno.io/description: Restrict image registries
+    kyverno.io/categories: compliance
+    kyverno.io/author: your-name
+    kyverno.io/description: Allow only approved registries
+spec:
+  validation:
+    openAPIV3Schema:
+      type: object
+      properties:
+        spec:
+          type: object
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  image:
+                    type: string
+                    pattern: '^((your-registry\.com\/)?[^/]+\/)?[^/]+\/.*$'
+  rules:
+  - name: validate-registry
+    match:
+      resources:
+        kinds:
+        - Pod
+        - Deployment
+        - StatefulSet
+        - DaemonSet
+    validate:
+      message: "Images must come from approved registries only."
+      pattern:
+        spec:
+          containers:
+          - image:
+              pattern: '^((your-registry\.com\/)?[^/]+\/)?[^/]+\/.*$'
